@@ -32,7 +32,7 @@ def extract_features(
 
     # SAFETY CHECK:
     # If audio is too short (< 0.5 sec), return safe defaults
-    if len(y) < sr * 0.5:      #extra feature
+    if len(y) < sr * 0.5:
         return default_features()
 
     features = {}
