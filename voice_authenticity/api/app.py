@@ -17,9 +17,10 @@ from flask import (
 from werkzeug.utils import secure_filename
 
 # NEW imports (replace fingerprint logic)
-from voice_features.extract_features import extract_features
-from models.voice_classifier import VoiceClassifier
-from explain.explanation import generate_explanation
+from voice_authenticity.voice_features.extract_features import extract_features
+from voice_authenticity.models.voice_classifier import VoiceClassifier
+from voice_authenticity.explain.explanation import generate_explanation
+
 
 
 # ----- Flask setup -----
@@ -34,7 +35,13 @@ ALLOWED_EXTENSIONS = {"wav", "webm", "ogg"}
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 # Load trained model ONCE
-classifier = VoiceClassifier.load("voice_model.pkl")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MODEL_PATH = os.path.join(BASE_DIR, "voice_model.pkl")
+
+classifier = VoiceClassifier.load(MODEL_PATH)
+print("MODEL PATH:", MODEL_PATH)
+print("MODEL EXISTS:", os.path.exists(MODEL_PATH))
+
 
 
 def allowed_file(filename: str) -> bool:

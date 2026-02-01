@@ -1,0 +1,22 @@
+flask
+werkzeug
+librosa
+numpy
+scikit-learn
+joblib
+
+
+voice_authenticity/
+├── data/
+│   ├── human/
+│   │   ├── human1.wav
+│   │   ├── human2.wav
+│   └── ai/
+│       ├── ai1.wav
+│       ├── ai2.wav
+    
+ElevenLabs
+
+PlayHT
+
+Google TTS
