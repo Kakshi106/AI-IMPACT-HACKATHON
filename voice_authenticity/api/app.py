@@ -59,8 +59,12 @@ def detect():
         return jsonify({"error": "Invalid or missing API key"}), 401
 
     data = request.get_json()
-    if not data or "audio_base64_format" not in data:
-        return jsonify({"error": "audio_base64_format field missing"}), 400
+    audio_b64 = data.get("audio_base64_format") or data.get("audio_base64")
+
+    if not audio_b64:
+            return jsonify({"error": "audio_base64 field missing"}), 400
+
+    audio_bytes = base64.b64decode(audio_b64)
 
     try:
         audio_bytes = base64.b64decode(data["audio_base64_format"])
