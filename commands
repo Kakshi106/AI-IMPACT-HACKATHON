@@ -1,0 +1,2 @@
+python -m voice_authenticity.api.app
+python test_api.py
