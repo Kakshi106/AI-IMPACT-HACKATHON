@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: ai-voice-detection
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m voice_authenticity.api.app
