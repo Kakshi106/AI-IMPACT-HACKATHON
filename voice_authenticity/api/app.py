@@ -59,19 +59,39 @@ def detect():
         return jsonify({"error": "Invalid or missing API key"}), 401
 
     # -----------------------------
-    # GUVI sends FORM DATA, not JSON
+    # Force-read raw request data
     # -----------------------------
-    data = request.get_json(silent=True)
-    if data is None:
-        data = request.form
+    raw_data = request.get_data(as_text=True)
+    print("RAW BODY:", raw_data)
 
+    # Try JSON first
+    data = request.get_json(silent=True)
+
+    # If JSON failed, try form
+    if not data:
+        data = request.form.to_dict()
+
+    # If still empty, try parsing raw body
+    if not data and raw_data:
+        try:
+            import json
+            data = json.loads(raw_data)
+        except:
+            data = {}
+
+    # Extract base64 from ANY known key
     audio_b64 = (
         data.get("audio_base64_format")
         or data.get("audio_base64")
+        or data.get("audioBase64")
+        or data.get("audio")
     )
 
     if not audio_b64:
-        return jsonify({"error": "audio_base64 missing"}), 400
+        return jsonify({
+            "error": "audio_base64 missing",
+            "received_keys": list(data.keys())
+        }), 400
 
     try:
         audio_bytes = base64.b64decode(audio_b64)
@@ -98,6 +118,7 @@ def detect():
             "error": "processing_failed",
             "details": str(e)
         }), 500
+
 
 
 
