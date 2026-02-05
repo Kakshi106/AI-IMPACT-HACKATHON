@@ -58,13 +58,18 @@ def detect():
     if not check_api_key(request):
         return jsonify({"error": "Invalid or missing API key"}), 401
 
-    # Force JSON parsing (GUVI tester fix)
-    data = request.get_json(force=True, silent=True)
-    if not data:
-        return jsonify({"error": "Invalid request body"}), 400
+    # -----------------------------
+    # GUVI sends FORM DATA, not JSON
+    # -----------------------------
+    data = request.get_json(silent=True)
+    if data is None:
+        data = request.form
 
-    # Accept both field names
-    audio_b64 = data.get("audio_base64_format") or data.get("audio_base64")
+    audio_b64 = (
+        data.get("audio_base64_format")
+        or data.get("audio_base64")
+    )
+
     if not audio_b64:
         return jsonify({"error": "audio_base64 missing"}), 400
 
