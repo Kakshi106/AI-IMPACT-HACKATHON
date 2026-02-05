@@ -59,23 +59,29 @@ def detect():
         return jsonify({"error": "Invalid or missing API key"}), 401
 
     data = request.get_json()
+    if not data:
+        return jsonify({"error": "Invalid JSON body"}), 400
+
+    # Accept both GUVI and local formats
     audio_b64 = data.get("audio_base64_format") or data.get("audio_base64")
 
     if not audio_b64:
-            return jsonify({"error": "audio_base64 field missing"}), 400
-
-    audio_bytes = base64.b64decode(audio_b64)
+        return jsonify({"error": "audio_base64 missing"}), 400
 
     try:
-        audio_bytes = base64.b64decode(data["audio_base64_format"])
+        # Decode Base64 audio
+        audio_bytes = base64.b64decode(audio_b64)
 
+        # Write temp MP3 file (Windows-safe)
         with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
             tmp.write(audio_bytes)
             tmp_path = tmp.name
 
+        # Load audio
         y, sr = librosa.load(tmp_path, sr=16000, mono=True)
         os.remove(tmp_path)
 
+        # Feature extraction & prediction
         features = extract_features(audio_array=y, sample_rate=sr)
         prediction = classifier.predict(features)
         explanation = generate_explanation(features)
@@ -91,6 +97,7 @@ def detect():
             "error": "processing_failed",
             "details": str(e)
         }), 500
+
 
 
 
